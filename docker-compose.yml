@@ -1,0 +1,76 @@
+version: "3"
+
+volumes:
+  db_data:
+
+services:
+
+  db:
+    build: 
+      context: ./db
+      args:
+        - http_proxy
+        - https_proxy
+
+    volumes:
+      - ./db/postgresql.conf:/etc/postgresql.conf
+      - ./db:/srv
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - ${DB_PORT}:5432
+
+  front:
+    build:
+      context: ./front
+      args:
+        - http_proxy
+        - https_proxy
+    environment:
+      - NODE_ENV=development
+    command: npm run watch
+    volumes:
+      - ./front:/srv
+
+  web:
+    build:
+      context: ./web
+      args:
+        - http_proxy
+        - https_proxy
+
+    volumes:
+      - ./front/dist:/public/aplf
+      - ./store:/public/store
+      - ./web/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "${WEB_PORT}:80"
+    depends_on:
+      - front
+      - dask-scheduler
+      - tensorboard
+
+  app:
+    build:
+      context: ./app
+      args:
+        - http_proxy
+        - https_proxy
+    environment:
+      - DASK_CONFIG=/srv/dask.config.yml
+    volumes:
+      - ./app:/srv
+      - ./store:/store
+      - ~/.kaggle:/root/.kaggle
+      - ./log:/log
+    depends_on:
+      - dask-worker
+      - web
+
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${SUBNET}
