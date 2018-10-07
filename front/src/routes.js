@@ -1,8 +1,8 @@
-import Home from "@/compornets/NavBar";
+import Home from "@/components/NavBar";
 export default [
   {
     path: '/',
     name: 'home',
-    compornet: 'NavBar',
+    componet: 'NavBar',
   }
 ];
