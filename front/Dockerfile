@@ -1,4 +1,4 @@
-FROM node:9-slim
+FROM node:10-slim
 
 WORKDIR /srv
 ENV NODE_ENV production
