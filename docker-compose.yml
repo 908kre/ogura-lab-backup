@@ -31,6 +31,21 @@ services:
     volumes:
       - ./front:/srv
 
+  storybook:
+    build:
+      context: ./front
+      args:
+        - http_proxy
+        - https_proxy
+    environment:
+      - NODE_ENV=development
+    command: npm run storybook
+    volumes:
+      - ./front:/srv
+    ports:
+      - ${STORYBOOK_PORT}:9001
+
+
   web:
     build:
       context: ./web
